@@ -1,0 +1,9 @@
+name: BalanceVIP
+version: 1.0.0-SNAPSHOT
+api-version: 1.15
+main: me.caiorocha.viciocraft.balancevip.Main
+author: F1rmeza
+
+depend:
+  - Vault
+  - LuckPerms
