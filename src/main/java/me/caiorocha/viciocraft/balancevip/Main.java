@@ -1,6 +1,7 @@
 package me.caiorocha.viciocraft.balancevip;
 
 import me.caiorocha.viciocraft.balancevip.hooks.VaultHook;
+import me.caiorocha.viciocraft.balancevip.listeners.OnBaltopJoin;
 import me.caiorocha.viciocraft.balancevip.managers.BaltopManager;
 import me.caiorocha.viciocraft.balancevip.managers.ConfigManager;
 import me.caiorocha.viciocraft.balancevip.utils.MessageView;
@@ -21,6 +22,8 @@ public class Main extends JavaPlugin {
 
         new MessageView(this);
         new BaltopManager(this);
+
+        getServer().getPluginManager().registerEvents(new OnBaltopJoin(), this);
 
         System.out.println("\n" +
                 ChatColor.GOLD+" __"+ChatColor.GREEN+"          __  \n" +

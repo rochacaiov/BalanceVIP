@@ -1,4 +1,4 @@
 player-atual:
 saldo-atual:
-valor-minimo: 50
-tempo-checagem: 1
+valor-minimo: 5000
+tempo-checagem: 60
