@@ -17,7 +17,7 @@ public class BaltopManager {
     private Main plugin;
     private FileConfiguration config;
 
-    public BaltopManager(Main plugin){
+    public BaltopManager(Main plugin) {
         this.plugin = plugin;
         this.config = plugin.getCustomConfig().getFileConfiguration();
 
@@ -28,22 +28,17 @@ public class BaltopManager {
         );
     }
 
-    public void checkBaltop(){
+    public void checkBaltop() {
         BaltopCache.formatCache();
-        for(OfflinePlayer offPlayer : plugin.getServer().getOfflinePlayers()){
-            if(BaltopCache.getBalance() < VaultHook.getEconomy().getBalance(plugin.getServer().getOfflinePlayer(offPlayer.getUniqueId()))){
-                BaltopCache.setBalance(VaultHook.getEconomy().getBalance(plugin.getServer().getOfflinePlayer(offPlayer.getUniqueId())));
-                BaltopCache.setUuid(offPlayer.getUniqueId());
-            }
-        }
-        plugin.getServer().getOnlinePlayers().forEach(player -> {
-            if(BaltopCache.getBalance() < VaultHook.getEconomy().getBalance(plugin.getServer().getOfflinePlayer(player.getUniqueId()))){
-                BaltopCache.setBalance(VaultHook.getEconomy().getBalance(plugin.getServer().getOfflinePlayer(player.getUniqueId())));
-                BaltopCache.setUuid(player.getUniqueId());
-            }
-        });
 
-        if(BaltopCache.getUuid() != null) {
+        Arrays.stream(plugin.getServer().getOfflinePlayers())
+                .filter(offlinePlayer -> BaltopCache.getBalance() < VaultHook.getEconomy().getBalance(offlinePlayer))
+                .forEach(offlinePlayer -> {
+                    BaltopCache.setBalance(VaultHook.getEconomy().getBalance(offlinePlayer));
+                    BaltopCache.setUuid(offlinePlayer.getUniqueId());
+                });
+
+        if (BaltopCache.getUuid() != null) {
             if (!this.config.contains("player-atual")) {
                 OfflinePlayer firstPlayer = Bukkit.getOfflinePlayer(BaltopCache.getUuid());
                 updateBaltop(firstPlayer, null);
@@ -58,7 +53,8 @@ public class BaltopManager {
                     updateBaltop(
                             Bukkit.getOfflinePlayer(BaltopCache.getUuid()),
                             Bukkit.getOfflinePlayer(UUID.fromString(
-                                    Objects.requireNonNull(this.config.getString("player-atual")))
+                                    Objects.requireNonNull(this.config.getString("player-atual"))
+                                    )
                             )
                     );
 
@@ -70,7 +66,7 @@ public class BaltopManager {
         }
     }
 
-    private void updateBaltop(OfflinePlayer newTopPlayer, OfflinePlayer oldTopPlayer){
+    private void updateBaltop(OfflinePlayer newTopPlayer, OfflinePlayer oldTopPlayer) {
         MessageView.broadcastNewBaltop(newTopPlayer);
         plugin.getServer().getScheduler().callSyncMethod(
                 plugin,
@@ -80,7 +76,7 @@ public class BaltopManager {
                 )
         );
 
-        if(oldTopPlayer != null){
+        if (oldTopPlayer != null) {
             MessageView.broadcastOldBaltop(oldTopPlayer);
             plugin.getServer().getScheduler().callSyncMethod(
                     plugin,
@@ -90,21 +86,21 @@ public class BaltopManager {
                     )
             );
             plugin.getServer().getScheduler().callSyncMethod(plugin,
-                    ()-> Bukkit.dispatchCommand(
+                    () -> Bukkit.dispatchCommand(
                             Bukkit.getConsoleSender(), "nick " + oldTopPlayer.getName() + "off"
                     )
             );
         }
     }
 
-    private void saveBaltop(UUID uuid, double balance){
+    private void saveBaltop(UUID uuid, double balance) {
         this.config.set("player-atual", uuid.toString());
         this.config.set("saldo-atual", balance);
         this.plugin.getCustomConfig().saveConfig();
     }
 
-    private void getLastBaltop(){
-        if(!this.config.contains("player-atual")){
+    private void getLastBaltop() {
+        if (!this.config.contains("player-atual")) {
             //NO_BALTOP
             return;
         }
@@ -112,9 +108,8 @@ public class BaltopManager {
         BaltopCache.setBalance(this.config.getDouble("saldo-atual"));
     }
 
-    private boolean hasDifference(double oldBalance){
+    private boolean hasDifference(double oldBalance) {
         double difference = this.config.getDouble("valor-minimo");
-        return ((BaltopCache.getBalance() - oldBalance) >= difference ||
-                (oldBalance - BaltopCache.getBalance() >= difference));
+        return ((BaltopCache.getBalance() - oldBalance) >= difference);
     }
 }
